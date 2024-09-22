@@ -1,0 +1,6 @@
+{% for tag in tags %}
+<p>
+<input type="checkbox" id="tag{{ tag.tagname }}" name="selectedtags" value="{{ tag.tagname }}">
+<label for="tag{{ tag.tagname }}">{{ tag.tagname }} ({{ tag.zettel_count }})</label>
+</p>
+{% endfor %}

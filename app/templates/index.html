@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <!-- The Modal -->
+    <div id="modal" class="modal">
+
+    <!-- Modal content -->
+    <div class="modal-content">
+        <div id="modal-text">
+        </div>
+         <div class="modal-buttons">
+            <button class="ok-btn" id="ok-btn">OK</button>
+            <button class="clear-btn" id="clear-btn">Clear</button>
+            <button class="cancel-btn" id="cancel-btn">Cancel</button>
+        </div>
+    </div>
+
+    </div>
+
+    <div class="search-bar">
+        <div class="input-wrapper-left">
+			<div class="button-wrapper-left">
+				<input type="text" placeholder="Tags" value="{{ tags }}" class="rounded-input tags" id="tags">
+	            <button class="hamburger-btn" id="browse-btn">
+    	            <img src={{ url_for("static", filename="hamburger.svg") }} alt="Menu" class="hamburger-icon">
+        	    </button>
+			</div>
+        </div>
+        <div class="input-wrapper-right">
+			<div class="button-wrapper-right">
+				<input type="text" placeholder="Search" value="{{ search }}" class="rounded-input search" id="search">
+			</div>
+			<div class="btn-container">
+	        	<button class="clear-btn" id="clear-search-btn">Clear</button>
+	        	<button class="new-btn" id="new-btn">New</button>
+			</div>
+		</div>
+	</div>
+
+    <div class="content">
+        <div class="left-pane">
+            <ul class="item-list" id="item-list">
+				{% for item in items %}
+                <li class="item" id="{{ item.id }}">
+                    <div class="item-title">{{ item.title }}</div>
+                    <div class="item-details">
+                        <span class="date">{{ item.date }}</span>
+                        <span class="description">{{ item.tags }}</span>
+                    </div>
+                </li>
+				{% endfor %}
+            </ul>
+        </div>
+        <div class="right-pane">
+            <div class="viewtext" id="viewtext">
+            </div>
+            <div class="edittext" id="edittext">
+                <textarea class="text-area" id="text-area"></textarea>
+            </div>
+            <div class="action-buttons">
+                <button class="save-btn" id="0">Edit</button>
+                <button class="discard-btn" id="0">Discard</button>
+				<button class="delete-btn" id="0">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src={{ url_for('static', filename='script.js') }}></script>
+{% endblock %}
