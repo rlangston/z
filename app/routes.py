@@ -196,7 +196,7 @@ def get_tags(s):
 	"""
 
 	# Split the input text into lines
-	lines = s.strip().splitlines()
+	lines = s.split("\n")
 
 	# Get the final line
 	if not lines:
@@ -212,20 +212,27 @@ def get_tags(s):
 
 def strip_tags(s):
 	"""
-	strip_tags(string s) removes the alphabetical tags and replaces numerical tags such "#6" with the relevant markdown code to link
+	strip_tags(string s) removes the alphabetical tags and replaces numerical tags (such as "#6") in lines other than the last with the relevant markdown code to link
 	"""
+
+	lines = s.split("\n")
+
+	# If there is only a single line, return it
+	if len(lines) == 1:
+		return lines[0]
 
 	# Replace numerical links
 	pattern = r"#(\d+)(?=\s|$)"
 	def replace_func(match):
 		digits = match.group(1)  # Extract the digits
 		return f"[{digits}](index?id={digits})"
-	s = re.sub(pattern, replace_func, s)
-	print(s)
 
-	# Strip tags
-	lines = s.rstrip().split("\n")
-	if len(lines) == 1:
-		return s
+	lines[:] = [re.sub(pattern, replace_func, line) for line in lines[:-1]]
+
+	# Remove the final line if it has tags
 	if lines[-1].startswith("#"):
-		return "\n".join(lines[:-1])
+		lines = lines[:-1]
+
+	# Return text containing the lines
+	return "\n".join(lines)
+
