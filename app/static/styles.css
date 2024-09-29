@@ -15,12 +15,30 @@ body {
     color: white;
     padding: 10px;
     display: flex;
+    justify-content: space-between;
     align-items: center;
 }
 
 .logo {
     font-size: 24px;
     font-weight: bold;
+}
+
+.logout-link a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.logout-link a:hover {
+    text-decoration: underline;
+}
+
+.form-entry {
+    margin: 30px; /* Large margin around the div */
+    line-height: 3; /* Spacing between each line */
+    padding: 20px; /* Optional: Adds some space inside the div */
+    border: 1px solid #000; /* Optional: Adds a border to see the div */
 }
 
 .search-bar {
@@ -191,7 +209,7 @@ body {
     align-items: center;
 }
 
-.save-btn, .discard-btn, .delete-btn {
+.save-btn, .discard-btn, .delete-btn, .login-btn {
     background-color: #20c997;
     color: white;
     border: none;
@@ -269,7 +287,6 @@ body {
     margin-bottom: 10px; /* Adjust the value as needed */
 }
 
-
 /* The Buttons */
 .modal-buttons {
   position: fixed; /* Stay fixed on the screen */
@@ -287,8 +304,6 @@ body {
   border-radius: 25px;
   width: 100px;
 }
-
-
 
 .ok-btn {
   background-color: #4CAF50; /* Green */

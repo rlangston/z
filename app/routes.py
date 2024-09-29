@@ -1,25 +1,34 @@
-from flask import render_template, request
+from flask import render_template, request, redirect, url_for, session
+from functools import wraps
 from datetime import datetime
-from app import app
-from app import db
 import json
 import markdown
 import re
-
-# TODO require logins
+from app import app
+from app import db
 
 # TODO boolean searches for search and tags
 
 # TODO update for SQLAlchemy rather than direct SQL calls
 # TODO check classes and ids consistent in index.html and styles.css / script.js
-# TODO tidy up all code - single button class
+# TODO tidy up all code - single button class (?)
 
 # TODO update styles and colors
 
 # TODO merge items (tags and text) - need to re-enable drag and drop
 
+def require_login(func):
+	@wraps(func)
+	def wrapper(*args, **kwargs):
+		if session.get("userid") != 1:
+			return redirect(url_for("login"))
+		return func(*args, **kwargs)
+	return wrapper
+
+
 @app.route("/")
 @app.route("/index")
+@require_login
 def index():
 	"""
 	index() returns the main z page with the item list etc
@@ -71,6 +80,7 @@ def index():
 
 
 @app.route("/tags", methods=['POST'])
+@require_login
 def tags():
 	"""
 	tags() returns a list of the tags in the database which are used at least once
@@ -90,6 +100,7 @@ def tags():
 
 
 @app.route("/zettel", methods=['POST'])
+@require_login
 def zettel():
 	"""
 	zettel() gets the zettel with the id sent in the JSON request
@@ -106,6 +117,7 @@ def zettel():
 
 
 @app.route("/savezettel", methods=['POST'])
+@require_login
 def save_zettel():
 	"""
 	save_zettel() saves the zettel to the database using the JSON data provided by the HTTP request
@@ -142,6 +154,7 @@ def save_zettel():
 
 
 @app.route("/deletezettel", methods=['POST'])
+@require_login
 def delete_zettel():
 	"""
 	delete_zettel deletes the zettel with the id in the JSON data provided by the HTTP request
@@ -154,6 +167,7 @@ def delete_zettel():
 
 
 @app.route("/newzettel", methods=['POST'])
+@require_login
 def new_zettel():
 	"""
 	new_zettel inserts a blank record into the database and then returns the record entered as a JSON string
@@ -169,6 +183,23 @@ def new_zettel():
 		"tags": ""
 	}
 	return json.dumps(rs)
+
+@app.route("/login", methods=['GET', 'POST'])
+def login():
+	# Redirect to home if already logged in
+	if session.get("userid") == 1:
+		return redirect(url_for(""))
+	if request.method == "POST":
+		if request.form["password"] == app.config["PASSWORD"]:
+			session["userid"] = 1
+			return redirect(url_for("index"))
+	return render_template("login.html")
+
+
+@app.route("/logout")
+def logout():
+	session.pop("userid", None)
+	return redirect(url_for("login"))
 
 
 def get_first_line(s, maxlength=40):

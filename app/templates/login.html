@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-entry">
+    <p>Enter Password to access the zettelkasten<p>
+    <form method="POST">
+        <label for="password">Password:</label>
+        <input type="password" class="rounded-input" id="password" name="password">
+        <button type="submit" class="login-btn">Login</button>
+    </form>
+</div>
+{% endblock %}
