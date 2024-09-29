@@ -139,7 +139,6 @@ def save_zettel():
 
 	text = r["body"]
 
-	# TODO: sort tags in alphabetical order
 	rs = {
 		"title": get_first_line(r["body"]),
 		"date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -165,6 +164,10 @@ def delete_zettel():
 
 @app.route("/newzettel", methods=['POST'])
 def new_zettel():
+	"""
+	new_zettel inserts a blank record into the database and then returns the record entered as a JSON string
+	The route /newzettel calls this function
+	"""
 	z_id = db.execute_db("INSERT INTO zettels (body) VALUES ('New item') RETURNING id")
 	r = db.query_db("SELECT * FROM zettels WHERE id=?", [z_id["id"]], one=True)
 	rs = {
@@ -175,16 +178,6 @@ def new_zettel():
 		"tags": ""
 	}
 	return json.dumps(rs)
-
-
-"""
-	Database schema:
-	TABLE zettels
-	id INTEGER PRIMARY KEY AUTOINCREMENT,
-	body TEXT NOT NULL,
-	modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-"""
 
 
 def get_first_line(s, maxlength=40):
@@ -198,22 +191,30 @@ def get_first_line(s, maxlength=40):
 
 
 def get_tags(s):
-    # Split the input text into lines
-    lines = s.strip().splitlines()
+	"""
+	get_tags(string s) extracts the tags from the final line of the string.
+	"""
 
-    # Get the final line
-    if not lines:
-        return []  # Return empty list if no lines are present
+	# Split the input text into lines
+	lines = s.strip().splitlines()
 
-    last_line = lines[-1]
+	# Get the final line
+	if not lines:
+		return []  # Return empty list if no lines are present
 
-    # Find words that start with #
-    result = [word[1:] for word in last_line.split() if word.startswith('#')]
+	last_line = lines[-1]
 
-    return result
+	# Find words that start with #
+	result = [word[1:] for word in last_line.split() if word.startswith('#')]
+
+	return result
 
 
 def strip_tags(s):
+	"""
+	strip_tags(string s) removes the alphabetical tags and replaces numerical tags such "#6" with the relevant markdown code to link
+	"""
+
 	# Replace numerical links
 	pattern = r"#(\d+)(?=\s|$)"
 	def replace_func(match):
