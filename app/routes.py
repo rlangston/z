@@ -130,6 +130,7 @@ def save_zettel():
 
 	# insert new tags
 	tags = get_tags(r["body"])
+	tags.sort()
 	for tag in tags:
 		tag_id = db.query_db("SELECT * FROM tags WHERE tagname=?", [tag], one=True)
 		if tag_id is None:
