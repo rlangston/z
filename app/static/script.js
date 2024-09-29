@@ -41,33 +41,10 @@ $(document).ready(function() {
 
         // jQuery click event handler for list items
         $(item).on('click', function() {
-            const itemId = $(this).attr('id');
-
-            // Send an AJAX request to fetch data based on the item id
-            $.ajax({
-                url: '/zettel/' + itemId,  // Replace with your actual endpoint
-                method: 'POST',
-                dataType: 'json', // Expect a json response
-                success: function(response) {
-                    const {text, markdown} = response;
-                    // Update the right pane's text area with the response text
-                    $("#viewtext").html(markdown);
-                    $('#text-area').val(text);
-                },
-                error: function(xhr, status, error) {
-                    console.log('Error:', error);
-                    // Optionally, handle the error by showing a message
-                    $('#viewtext').html('Failed to load data for item: ' + itemId);
-                    $('#text-area').val('Failed to load data for item: ' + itemId);
-                }
-            });
-
-            // Set the id of the buttons to the itemId
-            $('.save-btn').attr('id', itemId);
-            $('.discard-btn').attr('id', itemId);
-            $('.delete-btn').attr('id', itemId);
+            const id = $(this).attr('id');
+            update_text(id);
+            update_buttons(id);
         });
-
     }
 
     // let draggedItem = null;
@@ -76,6 +53,13 @@ $(document).ready(function() {
     $('.item').each(function(index) {
         applyHandlers(this);
     });
+
+    // if the hidden id variable is not 0 then update text and buttons
+    id = $('#selectedid').val();
+    if (id != "0") {
+        update_text(id);
+        update_buttons(id);
+    }
 
     // Search box handle ENTER
     $('#search').keypress(function(event){
@@ -284,10 +268,7 @@ $(document).ready(function() {
                 applyHandlers(newItem[0]);
 
                 // Set the id of the buttons to the new item's id
-                $('.save-btn').attr('id', id);
-                $('.discard-btn').attr('id', id);
-                $('.delete-btn').attr('id', id);
-
+                update_buttons(id);
             },
             error: function(xhr, status, error) {
                 console.log('Error:', error);
@@ -326,4 +307,31 @@ function close_modal() {
 
 function close_modal_cancel() {
     $('#modal').hide();
+}
+
+function update_text(itemId) {
+    $.ajax({
+        url: '/zettel/' + itemId,  // Replace with your actual endpoint
+        method: 'POST',
+        dataType: 'json', // Expect a json response
+        success: function(response) {
+            const {text, markdown} = response;
+            // Update the right pane's text area with the response text
+            $("#viewtext").html(markdown);
+            $('#text-area').val(text);
+        },
+        error: function(xhr, status, error) {
+            console.log('Error:', error);
+            // Optionally, handle the error by showing a message
+            $('#viewtext').html('Failed to load data for item: ' + itemId);
+            $('#text-area').val('Failed to load data for item: ' + itemId);
+        }
+    });
+}
+
+function update_buttons(itemId) {
+    // Set the id of the buttons to the itemId
+    $('.save-btn').attr('id', itemId);
+    $('.discard-btn').attr('id', itemId);
+    $('.delete-btn').attr('id', itemId);
 }

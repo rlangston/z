@@ -161,6 +161,10 @@ body {
     justify-content: space-between;
 }
 
+.id {
+    font-size: 12px;
+}
+
 .date {
     font-size: 12px;
     color: #777;

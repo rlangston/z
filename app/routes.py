@@ -4,10 +4,9 @@ from app import app
 from app import db
 import json
 import markdown
+import re
 
-# TODO deploy plus to github
-
-# TODO links (? display ids on zettels)
+# TODO require logins
 
 # TODO boolean searches for search and tags
 
@@ -28,11 +27,13 @@ def index():
 	Optional arguments are
 		q = search string, defaults to ""
 		tags = a string of tags separated by spaces, defaults to ""
+		id = z_id to pre-select, or 0 if not present
 
 	The route /index or / calls this function
 	"""
 	search = request.args.get("q", default = "", type = str)
 	tags_query = request.args.get("tags", default = "", type = str)
+	z_id = request.args.get("id", default = 0, type = int)
 	tags_list = tags_query.split()
 	search_param = f"%{search}%"
 	query = """
@@ -66,7 +67,7 @@ def index():
 			"date": item["modified"],
 			"tags": " ".join(tag[0] for tag in tags)
    		})
-	return render_template("index.html", items=items, search=search, tags=tags_query)
+	return render_template("index.html", items=items, search=search, tags=tags_query, selectedid=z_id)
 
 
 @app.route("/tags", methods=['POST'])
@@ -135,12 +136,14 @@ def save_zettel():
 			tag_id  = db.execute_db("INSERT INTO tags (tagname) VALUES (?) RETURNING id", [tag])
 		db.execute_db("INSERT INTO tags_zettels (tagid,zettelid) VALUES (?, ?)", [tag_id["id"], r["id"]])
 
+	text = r["body"]
+
 	# TODO: sort tags in alphabetical order
 	rs = {
 		"title": get_first_line(r["body"]),
 		"date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
 		"tags": " ".join(tag for tag in tags),
-		"text": r["body"],
+		"text": text,
 		"markdown": markdown.markdown(strip_tags(r["body"]))
 	}
 
@@ -210,9 +213,17 @@ def get_tags(s):
 
 
 def strip_tags(s):
+	# Replace numerical links
+	pattern = r"#(\d+)(?=\s|$)"
+	def replace_func(match):
+		digits = match.group(1)  # Extract the digits
+		return f"[{digits}](index?id={digits})"
+	s = re.sub(pattern, replace_func, s)
+	print(s)
+
+	# Strip tags
 	lines = s.rstrip().split("\n")
 	if len(lines) == 1:
 		return s
 	if lines[-1].startswith("#"):
 		return "\n".join(lines[:-1])
-	return s

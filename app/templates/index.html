@@ -40,10 +40,11 @@
 
     <div class="content">
         <div class="left-pane">
+            <input type="hidden" id="selectedid" value="{{ selectedid }}">
             <ul class="item-list" id="item-list">
 				{% for item in items %}
                 <li class="item" id="{{ item.id }}">
-                    <div class="item-title">{{ item.title }}</div>
+                    <div class="item-title">{{ item.title }} (#{{ item.id }})</div>
                     <div class="item-details">
                         <span class="date">{{ item.date }}</span>
                         <span class="description">{{ item.tags }}</span>
