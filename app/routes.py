@@ -89,27 +89,18 @@ def tags():
 	return render_template("tags.html", tags=t)
 
 
-# @app.route("/zetteltext/<int:z_id>", methods=['POST'])
-# def zetteltext(z_id):
-# 	"""
-# 	zettel(z_id) returns the text of zettel with id z_id
-# 	The route zettel/[id] calls this function
-# 	"""
-# 	r = db.query_db("SELECT body FROM zettels WHERE id=?", [z_id], one=True)
-# 	return r["body"]
-
-
-@app.route("/zettel/<int:z_id>", methods=['POST'])
-def zettel(z_id):
+@app.route("/zettel", methods=['POST'])
+def zettel():
 	"""
-	zettel(z_id) returns a JSON string with text of zettel and markdown render of zettel with id z_id
-	The route zettel/[id] calls this function
+	zettel() gets the zettel with the id sent in the JSON request
+	returns a JSON string with text of zettel and markdown render of zettel with id
+	The route /zettel calls this function
 	"""
-	# TODO: change this to take JSON
-	r = db.query_db("SELECT body FROM zettels WHERE id=?", [z_id], one=True)
+	r = request.get_json()
+	s = db.query_db("SELECT body FROM zettels WHERE id=?", r["id"], one=True)
 	rs = {
-		"text": r["body"],
-		"markdown": markdown.markdown(strip_tags(r["body"]))
+		"text": s["body"],
+		"markdown": markdown.markdown(strip_tags(s["body"]))
 	}
 	return json.dumps(rs)
 

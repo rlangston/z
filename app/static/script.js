@@ -143,9 +143,13 @@ $(document).ready(function() {
 
         // Send an AJAX request to fetch data based on the item id
         $.ajax({
-            url: '/zettel/' + itemId,  // Replace with your actual endpoint
+            url: '/zettel',
             method: 'POST',
-            dataType: 'json', // Expect a json response
+            contentType: 'application/json', // Specify that you're sending JSON
+            dataType: 'json', // Expect a JSON response
+            data: JSON.stringify({
+                id: itemId
+            }),
             success: function(response) {
                 const {text, markdown} = response;
                 // Update the right pane's text area with the response text
@@ -179,7 +183,7 @@ $(document).ready(function() {
         } else { // save and go back to view mode
             // Send an AJAX request to fetch data based on the item id
             $.ajax({
-                url: '/savezettel',  // Replace with your actual endpoint
+                url: '/savezettel',
                 method: 'POST',
                 contentType: 'application/json', // Specify that we are sending JSON
                 dataType: 'json', // Expect a JSON response
@@ -215,7 +219,7 @@ $(document).ready(function() {
 
         // Send an AJAX request to fetch data based on the item id
         $.ajax({
-            url: '/deletezettel',            // Replace with your actual endpoint
+            url: '/deletezettel',
             method: 'POST',
             contentType: 'application/json', // Specify that you're sending JSON
             dataType: 'json', // Expect a JSON response
@@ -244,7 +248,7 @@ $(document).ready(function() {
     $('.new-btn').on('click', function() {
         // Send an AJAX request to fetch data based on the item id
         $.ajax({
-            url: '/newzettel',  // Replace with your actual endpoint
+            url: '/newzettel',
             method: 'POST',
             dataType: 'json', // Expect a JSON response
             success: function(response) {
@@ -311,9 +315,13 @@ function close_modal_cancel() {
 
 function update_text(itemId) {
     $.ajax({
-        url: '/zettel/' + itemId,  // Replace with your actual endpoint
+        url: '/zettel',
         method: 'POST',
-        dataType: 'json', // Expect a json response
+        contentType: 'application/json', // Specify that you're sending JSON
+        dataType: 'json', // Expect a JSON response
+        data: JSON.stringify({
+            id: itemId
+        }),
         success: function(response) {
             const {text, markdown} = response;
             // Update the right pane's text area with the response text
