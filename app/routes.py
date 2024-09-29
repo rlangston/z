@@ -89,14 +89,14 @@ def tags():
 	return render_template("tags.html", tags=t)
 
 
-@app.route("/zetteltext/<int:z_id>", methods=['POST'])
-def zetteltext(z_id):
-	"""
-	zettel(z_id) returns the text of zettel with id z_id
-	The route zettel/[id] calls this function
-	"""
-	r = db.query_db("SELECT body FROM zettels WHERE id=?", [z_id], one=True)
-	return r["body"]
+# @app.route("/zetteltext/<int:z_id>", methods=['POST'])
+# def zetteltext(z_id):
+# 	"""
+# 	zettel(z_id) returns the text of zettel with id z_id
+# 	The route zettel/[id] calls this function
+# 	"""
+# 	r = db.query_db("SELECT body FROM zettels WHERE id=?", [z_id], one=True)
+# 	return r["body"]
 
 
 @app.route("/zettel/<int:z_id>", methods=['POST'])
