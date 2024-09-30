@@ -194,7 +194,7 @@ $(document).ready(function() {
                 success: function(response) {
                     const {title, date, tags, text, markdown} = response;
                     const item = $('li[id="' + itemId + '"]');
-                    item.find('.item-title').text(title);
+                    item.find('.item-title').text(title + " (#" + itemId + ")");
                     item.find('.date').text(date);
                     item.find('.description').text(tags);
                     // Update the right pane's text area with the response text
@@ -258,7 +258,7 @@ $(document).ready(function() {
                 $('#text-area').val(body);
 
                 const newItem = $('<li class="item" id="' + id + '">' +
-                                    '<div class="item-title">' + title + '</div>' +
+                                    '<div class="item-title">' + title + ' (#' + id + ')</div>' +
                                     '<div class="item-details">' +
                                         '<span class="date">' + date + '</span>' +
                                         '<span class="description">' + tags + '</span>' +
