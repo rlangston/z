@@ -244,17 +244,17 @@ def strip_tags(s):
 	if len(lines) == 1:
 		return lines[0]
 
+	# Remove the final line if it has tags
+	if lines[-1].startswith("#"):
+		lines = lines[:-1]
+
 	# Replace numerical links
 	pattern = r"#(\d+)(?=\s|$)"
 	def replace_func(match):
 		digits = match.group(1)  # Extract the digits
 		return f"[{digits}](index?id={digits})"
 
-	lines[:] = [re.sub(pattern, replace_func, line) for line in lines[:-1]]
-
-	# Remove the final line if it has tags
-	if lines[-1].startswith("#"):
-		lines = lines[:-1]
+	lines[:] = [re.sub(pattern, replace_func, line) for line in lines]
 
 	# Return text containing the lines
 	return "\n".join(lines)
