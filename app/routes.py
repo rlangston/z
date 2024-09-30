@@ -209,8 +209,8 @@ def get_first_line(s, maxlength=40):
 	"""
 	newline_index = s.find('\n')
 	if 0 <= newline_index < maxlength:
-		return s[:newline_index]
-	return s[:maxlength]
+		return s[:newline_index].lstrip("#")
+	return s[:maxlength].lstrip("#")
 
 
 def get_tags(s):
