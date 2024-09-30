@@ -6,6 +6,7 @@ $(document).ready(function() {
     function applyHandlers(item) {
         // jQuery click event handler for list items
         $(item).on('click', function() {
+            end_editing(); // ensure that not in edit mode
             const id = $(this).attr('id');
             update_text(id);
             update_buttons(id);
