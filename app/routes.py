@@ -109,6 +109,7 @@ def zettel():
 	"""
 	r = request.get_json()
 	s = db.query_db("SELECT body FROM zettels WHERE id=?", r["id"], one=True)
+
 	rs = {
 		"text": s["body"],
 		"markdown": markdown.markdown(strip_tags(s["body"]))
