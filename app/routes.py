@@ -131,8 +131,6 @@ def save_zettel():
 			tag_id  = db.execute_db("INSERT INTO tags (tagname) VALUES (?) RETURNING id", [tag])
 		db.execute_db("INSERT INTO tags_zettels (tagid,zettelid) VALUES (?, ?)", [tag_id["id"], r["id"]])
 
-	text = r["body"]
-
 	rs = {
 		"title": get_first_line(r["body"]),
 		"date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -164,14 +162,17 @@ def new_zettel():
 	new_zettel inserts a blank record into the database and then returns the record entered as a JSON string
 	The route /newzettel calls this function
 	"""
-	z_id = db.execute_db("INSERT INTO zettels (body) VALUES ('New item') RETURNING id")
+	z_id = db.execute_db("INSERT INTO zettels (body) VALUES ('') RETURNING id")
+
+	# Get default values from database
 	r = db.query_db("SELECT * FROM zettels WHERE id=?", [z_id["id"]], one=True)
 	rs = {
 		"id": r["id"],
-		"body": r["body"],
 		"title": get_first_line(r["body"]),
 		"date": r["modified"],
-		"tags": ""
+		"tags": "",
+		"text": r["body"],
+		"markdown": markdown.markdown(strip_tags(r["body"]))
 	}
 	return json.dumps(rs)
 

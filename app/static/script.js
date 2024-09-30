@@ -141,11 +141,7 @@ $(document).ready(function() {
         }
 
         if (buttonText == "Edit") { // go into edit mode
-            $("#viewtext").hide();
-            $("#edittext").show();
-            $(".discard-btn").show();
-            $(".delete-btn").show();
-            $(this).text("Save")
+            start_editing();
         } else { // save and go back to view mode
             // Send an AJAX request to fetch data based on the item id
             $.ajax({
@@ -218,10 +214,7 @@ $(document).ready(function() {
             method: 'POST',
             dataType: 'json', // Expect a JSON response
             success: function(response) {
-                const { id, body, title, date, tags} = response;
-
-                // Update the right pane's text area with the response text
-                $('#text-area').val(body);
+                const { id, title, date, tags, text, markdown } = response;
 
                 const newItem = $('<li class="item" id="' + id + '">' +
                                     '<div class="item-title">' + title + ' (#' + id + ')</div>' +
@@ -231,14 +224,18 @@ $(document).ready(function() {
                                     '</div>' +
                                   '</li>');
 
-                // Append the new item to the list
+                // Append the new item to the list and apply handlers
                 $('#item-list').append(newItem);
-
-                // Apply handlers to the new item
                 applyHandlers(newItem[0]);
+
+                // Update the text and the markdown
+                $("#viewtext").html(markdown);
+                $('#text-area').val(text);
 
                 // Set the id of the buttons to the new item's id
                 update_buttons(id);
+
+                start_editing();
             },
             error: function(xhr, status, error) {
                 console.log('Error:', error);
@@ -248,6 +245,14 @@ $(document).ready(function() {
         });
     });
 });
+
+function start_editing() {
+    $("#viewtext").hide();
+    $("#edittext").show();
+    $(".discard-btn").show();
+    $(".delete-btn").show();
+    $('.save-btn').text("Save");
+}
 
 function end_editing() {
     $("#edittext").hide();
