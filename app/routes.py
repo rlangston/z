@@ -211,10 +211,11 @@ def get_tags(s):
 	# Split the input text into lines
 	lines = s.split("\n")
 
-	# Get the final line
-	if not lines:
-		return []  # Return empty list if no lines are present
+	# Return empty list if there is only a single line
+	if len(lines) <= 1:
+		return []
 
+	# Get the final line
 	last_line = lines[-1]
 
 	# Find words that start with #
