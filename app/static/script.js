@@ -2,43 +2,8 @@
 
 $(document).ready(function() {
 
-    // Function to apply drag, drop, and click handlers to list items
+    // Function to apply click handlers to list items
     function applyHandlers(item) {
-        // Enable drag and drop - this is done in the item
-        // item.setAttribute('draggable', true);
-
-        // Drag start
-        // item.addEventListener('dragstart', function(e) {
-        //     draggedItem = item;
-        //     setTimeout(() => item.style.display = 'none', 0);  // Hide the item while dragging
-        // });
-        //
-        // // Drag end
-        // item.addEventListener('dragend', function(e) {
-        //     setTimeout(() => {
-        //         item.style.display = 'block';  // Show the item after drag ends
-        //         draggedItem = null;
-        //     }, 0);
-        // });
-        //
-        // // When dragging over another item
-        // item.addEventListener('dragover', function(e) {
-        //     e.preventDefault();  // Prevent default to allow drop
-        // });
-        //
-        // // Dropping on another item
-        // item.addEventListener('drop', function(e) {
-        //     e.preventDefault();
-        //     if (draggedItem !== this) {
-        //         if (this.nextSibling) {
-        //             this.parentNode.insertBefore(draggedItem, this.nextSibling);
-        //         } else {
-        //             this.parentNode.appendChild(draggedItem);
-        //         }
-        //     }
-        // });
-        // would need to add draggable="true" to the item in index.html
-
         // jQuery click event handler for list items
         $(item).on('click', function() {
             const id = $(this).attr('id');

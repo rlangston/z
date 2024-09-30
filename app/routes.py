@@ -7,16 +7,6 @@ import re
 from app import app
 from app import db
 
-# TODO boolean searches for search and tags
-
-# TODO update for SQLAlchemy rather than direct SQL calls
-# TODO check classes and ids consistent in index.html and styles.css / script.js
-# TODO tidy up all code - single button class (?)
-
-# TODO update styles and colors
-
-# TODO merge items (tags and text) - need to re-enable drag and drop
-
 def require_login(func):
 	@wraps(func)
 	def wrapper(*args, **kwargs):
