@@ -1,3 +1,7 @@
+<p>
+<input type="checkbox" id="notag" name="selectedtags" value="<none>">
+<label for="notag">No tag</label>
+</p>
 {% for tag in tags %}
 <p>
 <input type="checkbox" id="tag{{ tag.tagname }}" name="selectedtags" value="{{ tag.tagname }}">

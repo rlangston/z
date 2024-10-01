@@ -33,7 +33,14 @@ def index():
 	search = request.args.get("q", default = "", type = str)
 	tags_query = request.args.get("tags", default = "", type = str)
 	z_id = request.args.get("id", default = 0, type = int)
-	tags_list = tags_query.split()
+	tags_list = None
+
+	if tags_query == "<none>":
+		no_tag = True
+	else:
+		tags_list = tags_query.split()
+		no_tag = False
+
 	search_param = f"%{search}%"
 	query = """
         SELECT zettels.id, zettels.body, zettels.modified, zettels.created
@@ -50,6 +57,13 @@ def index():
 			GROUP BY zettels.id
 		"""
 		i = db.query_db(query, tags_list + [search_param])
+	elif no_tag == True:
+		query += """
+			WHERE id NOT IN (SELECT zettelid FROM tags_zettels)
+			AND zettels.body LIKE ?
+			GROUP BY zettels.id
+		"""
+		i = db.query_db(query, [search_param])
 	else:
 		query += """
 			WHERE zettels.body LIKE ?
