@@ -135,7 +135,6 @@ $(document).ready(function() {
     $('.save-btn').on('click', function() {
         const itemId = $(this).attr('id');
         const buttonText = $(this).text(); // current button text
-
         if (itemId == "0") { // No item selected
             return;
         }
@@ -178,6 +177,9 @@ $(document).ready(function() {
     // jQuery click event handler for delete button - need to use class as id used for item number
     $('.delete-btn').on('click', function() {
         const itemId = $(this).attr('id');
+        if (itemId == "0") { // No item selected
+            return;
+        }
 
         // Send an AJAX request to fetch data based on the item id
         $.ajax({
@@ -250,7 +252,7 @@ function start_editing() {
     $("#viewtext").hide();
     $("#edittext").show();
     $(".discard-btn").show();
-    $(".delete-btn").show();
+    // $(".delete-btn").show();
     $('.save-btn').text("Save");
 }
 
@@ -258,7 +260,7 @@ function end_editing() {
     $("#edittext").hide();
     $("#viewtext").show();
     $(".discard-btn").hide();
-    $(".delete-btn").hide();
+    // $(".delete-btn").hide();
     $(".save-btn").text("Edit")
 }
 

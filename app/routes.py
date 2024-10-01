@@ -135,7 +135,7 @@ def save_zettel():
 		"title": get_first_line(r["body"]),
 		"date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
 		"tags": " ".join(tag for tag in tags),
-		"text": text,
+		"text": r["body"],
 		"markdown": markdown.markdown(strip_tags(r["body"]))
 	}
 

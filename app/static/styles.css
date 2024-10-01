@@ -239,7 +239,7 @@ body {
 /*     right: 35px; */
     margin-left: auto;
     background-color: #dc3545;
-    display: none;
+/*     display: none; */
 }
 
 .delete-btn:hover {
