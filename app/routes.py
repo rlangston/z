@@ -112,7 +112,7 @@ def zettel():
 	The route /zettel calls this function
 	"""
 	r = request.get_json()
-	s = db.query_db("SELECT body FROM zettels WHERE id=?", r["id"], one=True)
+	s = db.query_db("SELECT body FROM zettels WHERE id=?", (r["id"],), one=True)
 
 	rs = {
 		"text": s["body"],
@@ -214,8 +214,10 @@ def get_first_line(s, maxlength=40):
 	"""
 	newline_index = s.find('\n')
 	if 0 <= newline_index < maxlength:
-		return s[:newline_index].lstrip("#")
-	return s[:maxlength].lstrip("#")
+		title = s[:newline_index].lstrip("#")
+	else:
+		title = s[:maxlength].lstrip("#")
+	return title.translate( { ord(i): None for i in "[]"} )
 
 
 def get_tags(s):
