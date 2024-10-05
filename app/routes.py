@@ -2,7 +2,7 @@ from flask import render_template, request, redirect, url_for, session
 from functools import wraps
 from datetime import datetime
 import json
-import markdown
+import mistune
 import re
 from app import app
 from app import db
@@ -116,7 +116,7 @@ def zettel():
 
 	rs = {
 		"text": s["body"],
-		"markdown": markdown.markdown(strip_tags(s["body"]))
+		"markdown": mistune.html(strip_tags(s["body"]))
 	}
 	return json.dumps(rs)
 
@@ -150,7 +150,7 @@ def save_zettel():
 		"date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
 		"tags": " ".join(tag for tag in tags),
 		"text": r["body"],
-		"markdown": markdown.markdown(strip_tags(r["body"]))
+		"markdown": mistune.html(strip_tags(r["body"]))
 	}
 
 	return json.dumps(rs)
@@ -186,7 +186,7 @@ def new_zettel():
 		"date": r["modified"],
 		"tags": "",
 		"text": r["body"],
-		"markdown": markdown.markdown(strip_tags(r["body"]))
+		"markdown": mistune.html(strip_tags(r["body"]))
 	}
 	return json.dumps(rs)
 
