@@ -8,12 +8,37 @@ from app import app
 from app import db
 
 def require_login(func):
+	"""
+	require_login(func) is a decorator for a function func which checks if the session variable userid is 1, and if not redirects to the login page, otherwise it returns the function ie renders the page
+	"""
 	@wraps(func)
 	def wrapper(*args, **kwargs):
 		if session.get("userid") != 1:
 			return redirect(url_for("login"))
 		return func(*args, **kwargs)
 	return wrapper
+
+
+class TaskListRenderer(mistune.HTMLRenderer):
+	def list_item(self, text):
+		"""
+		TaskListRenderer() inherits from and modifies the mistune.HTMLRenderer function to add checkboxes to markdown task lists
+		"""
+		# Check for task list pattern '- [ ]' or '- [x]'
+		if text.startswith("[ ]"):
+			checkbox = '<input type="checkbox" disabled>'
+			return f"{checkbox} {text[3:]} <br />\n"
+		elif text.startswith("[x]"):
+			checkbox = '<input type="checkbox" checked disabled>'
+			return f"{checkbox} {text[3:]} <br />\n"
+		return f"<li>{text}</li>\n"
+
+	def table(self, content):
+		# Add a custom class to the table
+		return f'<table class="table table-striped">\n{content}</table>\n'
+
+# Create a Markdown parser with the custom renderer
+markdown = mistune.create_markdown(renderer=TaskListRenderer(), plugins=['table'])
 
 
 @app.route("/")
@@ -114,9 +139,11 @@ def zettel():
 	r = request.get_json()
 	s = db.query_db("SELECT body FROM zettels WHERE id=?", (r["id"],), one=True)
 
+	print(markdown(strip_tags(s["body"])))
+
 	rs = {
 		"text": s["body"],
-		"markdown": mistune.html(strip_tags(s["body"]))
+		"markdown": markdown(strip_tags(s["body"]))
 	}
 	return json.dumps(rs)
 
@@ -150,7 +177,7 @@ def save_zettel():
 		"date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
 		"tags": " ".join(tag for tag in tags),
 		"text": r["body"],
-		"markdown": mistune.html(strip_tags(r["body"]))
+		"markdown": markdown(strip_tags(r["body"]))
 	}
 
 	return json.dumps(rs)
@@ -186,7 +213,7 @@ def new_zettel():
 		"date": r["modified"],
 		"tags": "",
 		"text": r["body"],
-		"markdown": mistune.html(strip_tags(r["body"]))
+		"markdown": markdown(strip_tags(r["body"]))
 	}
 	return json.dumps(rs)
 
