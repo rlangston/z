@@ -1,163 +1,15 @@
+/* Global styles */
+
+.cursor-pointer { cursor: pointer; }
+
 * {
-    box-sizing: border-box;
-    margin: 0;
     padding: 0;
-    font-family: Arial, sans-serif;
 }
 
-body {
-    background-color: #f5f5f5;
-    color: #333;
-}
-
-.menu-bar {
-    background-color: #333;
-    color: white;
-    padding: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.logo {
-    font-size: 24px;
-    font-weight: bold;
-}
-
-.logout-link a {
-    color: white;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-.logout-link a:hover {
-    text-decoration: underline;
-}
-
-.form-entry {
-    margin: 30px; /* Large margin around the div */
-    line-height: 3; /* Spacing between each line */
-    padding: 20px; /* Optional: Adds some space inside the div */
-    border: 1px solid #000; /* Optional: Adds a border to see the div */
-}
-
-.search-bar {
-    background-color: #eee;
-    padding: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: left;
-}
-
-.input-wrapper-left {
-    position: relative;
-    width: 40%;
-}
-
-.button-wrapper-left {
-	position: relative;
-	width: 95%;
-}
-
-.input-wrapper-right {
-	display: flex;
-    position: relative;
-    width: 60%;
-    align-items: center;
-}
-
-.button-wrapper-right {
-/* 	position: relative; */
-	/* width: 300px; */
-	width: 60%;
-}
-
-.btn-container {
-  display: flex;
-  justify-content: flex-end;
-  width: 40%;
-  gap: 10px; /* Add some space between buttons */
-}
-
-.rounded-input {
-    padding: 10px;
-    border-radius: 25px;
-    border: 1px solid #ccc;
-}
-
-.tags {
-    width: 100%;
-}
-
-.search {
-    margin-left: 10px;
-	/* margin-right: auto; */
-    width: 100%;
-}
-
-.hamburger-btn {
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: transparent;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-}
-
-.hamburger-icon {
-    width: 20px;
-    height: 20px;
-}
-
-.new-btn {
-/* 	position: absolute; */
-	right: 0;
-    background-color: #20c997;
-    color: white;
-    border: none;
-    margin: 5px;
-    padding: 10px 20px;
-    border-radius: 25px;
-    cursor: pointer;
-    width: 100px;
-/* 	width: 15%; */
-}
-
-.new-btn:hover {
-    background-color: #1db890;
-}
-
-.content {
-    display: flex;
-    padding: 20px;
-    height: calc(100vh - 120px); /* Adjusting for top bars */
-    align-items: flex-start; /* Ensure top alignment of left and right panes */
-}
-
-.left-pane {
-    width: 40%;
-    background-color: white;
-    padding: 15px;
-    border-right: 1px solid #ddd;
-    border-radius: 10px; /* Rounded corners */
-    margin-right: 10px;
-    overflow-y: auto;
-    height: 100%; /* Make sure the left pane fills the vertical space */
-}
-
-.right-pane {
-    width: 60%;
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    border-radius: 10px; /* Matching rounded corners */
-    background-color: white;
-    height: 100%; /* Ensure right pane matches left pane height */
-}
+/* Item list styles */
 
 .item-list {
+    margin-top: 15px;
     list-style: none;
 }
 
@@ -165,7 +17,7 @@ body {
     padding: 10px;
     margin-bottom: 10px;
     background-color: #f0f0f0;
-    border-radius: 10px;
+    border-radius: 5px;
 }
 
 .item-title {
@@ -193,65 +45,28 @@ body {
     margin-left: 20px;
 }
 
+/* The text area on the right hand pane */
+
 .text-area {
     width: 100%;
-    height: 95%;
-    border-radius: 10px;
+    height: auto;
     border: 1px solid #ccc;
-    padding: 15px;
-    resize: none;
+    padding: 5px;
+    resize: vertical;
     margin-bottom: 15px;
-}
-
-.action-buttons {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.save-btn, .discard-btn, .delete-btn, .login-btn {
-    background-color: #20c997;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 25px;
-    cursor: pointer;
-    margin-left: 10px;
-    margin-right: 10px;
-    width: 100px;
-}
-
-.discard-btn {
-    background-color: #ff7f50;
-    display: none;
-}
-
-.save-btn:hover {
-    background-color: #1db890;
-}
-
-.discard-btn:hover {
-    background-color: #e36d47;
-}
-
-.delete-btn {
-/*     position: fixed; */
-/*     right: 35px; */
-    margin-left: auto;
-    background-color: #dc3545;
-/*     display: none; */
-}
-
-.delete-btn:hover {
-    background-color: #c82333;
 }
 
 .edittext {
     flex-grow: 1;
+    margin-bottom: 15px;
+    margin-top: 15px;
     display: none;
 }
 
 .viewtext {
+    padding: 5px;
+    margin-bottom: 15px;
+    margin-top: 15px;
     flex-grow: 1;
 }
 
@@ -261,78 +76,5 @@ body {
 
 .viewtext p {
     margin-bottom: 1em;
-}
-
-
- /* The Modal (background) */
-.modal {
-  display: none; /* Hidden by default */
-  position: fixed; /* Stay in place */
-  z-index: 1; /* Sit on top */
-  left: 0;
-  top: 0;
-  width: 100%; /* Full width */
-  height: 100%; /* Full height */
-  overflow: auto; /* Enable scroll if needed */
-  background-color: rgb(0,0,0); /* Fallback color */
-  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-}
-
-/* Modal Content/Box */
-.modal-content {
-  background-color: #fefefe;
-  margin: 15% auto; /* 15% from the top and centered */
-  padding: 20px;
-  border: 1px solid #888;
-  width: 40%; /* Could be more or less, depending on screen size */
-}
-
-.modal-content p {
-    margin-bottom: 10px; /* Adjust the value as needed */
-}
-
-/* The Buttons */
-.modal-buttons {
-  position: fixed; /* Stay fixed on the screen */
-  top: 20%; /* Position near the top */
-  left: 50%;
-  transform: translateX(-50%); /* Center horizontally */
-  z-index: 2; /* Make sure it's above other elements */
-}
-
-.ok-btn, .cancel-btn, .clear-btn {
-  padding: 10px 20px;
-  margin: 5px;
-  cursor: pointer;
-  border: none;
-  border-radius: 25px;
-  width: 100px;
-}
-
-.ok-btn {
-  background-color: #4CAF50; /* Green */
-  color: white;
-}
-
-.ok-btn:hover {
-  background-color: #45a049;
-}
-
-.clear-btn {
-  background-color: #87cefa; /* Light blue */
-  color: white;
-}
-
-.clear-btn:hover {
-  background-color: #6495ED;
-}
-
-.cancel-btn {
-  background-color: #f44336; /* Red */
-  color: white;
-}
-
-.cancel-btn:hover {
-  background-color: #da190b;
 }
 

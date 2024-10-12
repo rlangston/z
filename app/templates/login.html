@@ -1,12 +1,13 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="form-entry">
-    <p>Enter Password to access the zettelkasten<p>
-    <form method="POST">
-        <label for="password">Password:</label>
-        <input type="password" class="rounded-input" id="password" name="password">
-        <button type="submit" class="login-btn">Login</button>
+<div class="p-4 m-4 border rounded">
+    <p>Enter password to access the zettelkasten<p>
+    <form method="POST" class="form-inline">
+    <div class="form-group">
+        <input type="password" class="form-control mr-sm-2" id="password" name="password" placeholder="Enter password">
+        <button type="submit" class="btn btn-primary mr-sm-2">Login</button>
+    </div>
     </form>
 </div>
 {% endblock %}

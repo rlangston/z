@@ -209,7 +209,7 @@ $(document).ready(function() {
     });
 
     // jQuery click event handler for new button - need to use class as id used for item number
-    $('.new-btn').on('click', function() {
+    $('#new-btn').on('click', function() {
         // Send an AJAX request to fetch data based on the item id
         $.ajax({
             url: '/newzettel',
@@ -254,6 +254,7 @@ function start_editing() {
     $(".discard-btn").show();
     // $(".delete-btn").show();
     $('.save-btn').text("Save");
+    resizeTextArea();
 }
 
 function end_editing() {
@@ -262,6 +263,12 @@ function end_editing() {
     $(".discard-btn").hide();
     // $(".delete-btn").hide();
     $(".save-btn").text("Edit")
+}
+
+function resizeTextArea() {
+    // Calculate the available height in the parent div
+    let edittextHeight = $(window).height() * 0.7;
+    $("#text-area").height(edittextHeight);
 }
 
 function reload_page() {
