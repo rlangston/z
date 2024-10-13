@@ -1,11 +1,14 @@
-from flask import render_template, request, redirect, url_for, session
+from flask import render_template, request, redirect, url_for, session, jsonify
 from functools import wraps
 from datetime import datetime
+from sqlalchemy import func
+
 import json
 import mistune
 import re
-from app import app
-from app import db
+
+from .models import Zettel, Tag, TagZettel
+from .db import db
 
 def require_login(func):
 	"""
@@ -24,6 +27,7 @@ class TaskListRenderer(mistune.HTMLRenderer):
 		"""
 		TaskListRenderer() inherits from and modifies the mistune.HTMLRenderer function to add checkboxes to markdown task lists
 		"""
+
 		# Check for task list pattern '- [ ]' or '- [x]'
 		if text.startswith("[ ]"):
 			checkbox = '<input type="checkbox" disabled>'
@@ -41,204 +45,217 @@ class TaskListRenderer(mistune.HTMLRenderer):
 markdown = mistune.create_markdown(renderer=TaskListRenderer(), plugins=['table'])
 
 
-@app.route("/")
-@app.route("/index")
-@require_login
-def index():
-	"""
-	index() returns the main z page with the item list etc
-
-	Optional arguments are
-		q = search string, defaults to ""
-		tags = a string of tags separated by spaces, defaults to ""
-		id = z_id to pre-select, or 0 if not present
-
-	The route /index or / calls this function
-	"""
-	search = request.args.get("q", default = "", type = str)
-	tags_query = request.args.get("tags", default = "", type = str)
-	z_id = request.args.get("id", default = 0, type = int)
-	tags_list = []
-	tags_required_list = []
-
-	if tags_query == "<none>":
-		no_tag = True
-	else:
-		for tag in tags_query.split():
-			print(tag)
-			if tag.startswith("+"):
-				# tags_list.append(tag[1:])
-				tags_required_list.append(tag[1:])
-			else:
-				tags_list.append(tag)
-		no_tag = False
-
-	search_param = f"%{search}%"
-	query = """
-        SELECT zettels.id, zettels.body, zettels.modified, zettels.created
-        FROM zettels
-	"""
-
-	if tags_list:
-		placeholders = ", ".join("?" for _ in tags_list)
-		query += f"""
-			INNER JOIN tags_zettels ON zettels.id = tags_zettels.zettelid
-			INNER JOIN tags ON tags.id = tags_zettels.tagid
-			WHERE tags.tagname IN ({placeholders})
-			AND zettels.body LIKE ?
-			GROUP BY zettels.id
+def register_routes(app):
+	@app.route("/")
+	@app.route("/index")
+	@require_login
+	def index():
 		"""
-		i = db.query_db(query, tags_list + [search_param])
-	elif no_tag == True:
-		query += """
-			WHERE id NOT IN (SELECT zettelid FROM tags_zettels)
-			AND zettels.body LIKE ?
-			GROUP BY zettels.id
+		index() returns the main z page with the item list etc
+
+		Optional arguments are
+			q = search string, defaults to ""
+			tags = a string of tags separated by spaces, defaults to "".  If a tag is preceded by "+" then it is a required tag
+			id = z_id to pre-select, or 0 if not present
+
+		The route /index or / calls this function
 		"""
-		i = db.query_db(query, [search_param])
-	else:
-		query += """
-			WHERE zettels.body LIKE ?
-			GROUP BY zettels.id
+		search = request.args.get("q", default = "", type = str)
+		tags_query = request.args.get("tags", default = "", type = str)
+		z_id = request.args.get("id", default = 0, type = int)
+
+		tags_list = []
+		tags_required_list = []
+
+		if tags_query == "<none>":
+			no_tag = True
+		else:
+			for tag in tags_query.split():
+				if tag.startswith("+"):
+					# tags_list.append(tag[1:])
+					tags_required_list.append(tag[1:])
+				else:
+					tags_list.append(tag)
+			no_tag = False
+
+		query = Zettel.query
+
+		if no_tag == True:
+			# Just want records which have no tag
+			query = query.outerjoin(TagZettel).filter(TagZettel.zettelid == None)
+		elif tags_list:
+			query = query.join(TagZettel).join(Tag).filter(Tag.tagname.in_(tags_list))
+
+		if search:
+			query = query.filter(Zettel.body.like(f"%{search}%"))
+
+		zettels = query.all()
+
+		items = []
+		for zettel in zettels:
+			tags = db.session.query(Tag.tagname).join(TagZettel).filter(TagZettel.zettelid == zettel.id).all()
+			item_tags = [tag[0] for tag in tags]
+			if all(item_tag in item_tags for item_tag in tags_required_list):
+				items.append({
+					"id": zettel.id,
+					"title": get_first_line(zettel.body),
+					"date": zettel.modified.strftime("%Y-%m-%d %H:%M:%S"),
+					"tags": " ".join([tag[0] for tag in tags])
+				})
+		return render_template("index.html", items=items, search=search, tags=tags_query, selectedid=z_id)
+
+
+	@app.route("/tags", methods=['POST'])
+	@require_login
+	def tags():
 		"""
-		i = db.query_db(query, [search_param])
+		tags() returns a list of the tags in the database which are used at least once
+		The route /tags calls this function
+		"""
 
-	items = []
-	for item in i:
-		tags = db.query_db("SELECT t.tagname FROM tags t JOIN tags_zettels tz ON t.id = tz.tagid JOIN zettels z ON z.id = tz.zettelid WHERE z.id = ? ORDER BY t.tagname ASC", [item["id"]])
-		item_tags = [tag[0] for tag in tags]
-		if all(item_tag in item_tags for item_tag in tags_required_list):
-			items.append({
-				"id": item["id"],
-				"title": get_first_line(item["body"]),
-				"date": item["modified"],
-				"tags": " ".join(item_tags)
-			})
-	return render_template("index.html", items=items, search=search, tags=tags_query, selectedid=z_id)
-
-
-@app.route("/tags", methods=['POST'])
-@require_login
-def tags():
-	"""
-	tags() returns a list of the tags in the database which are used at least once
-	The route /tags calls this function
-	"""
-
-	query = """
-		SELECT t.tagname, t.id, COUNT(tz.zettelid) AS zettel_count
-		FROM tags t
-		JOIN tags_zettels tz ON t.id = tz.tagid
-		GROUP BY t.tagname
-		HAVING COUNT(tz.zettelid) > 0;
-	"""
-	t = db.query_db(query)
-	return render_template("tags.html", tags=t)
+		tags = (
+			db.session.query(
+				Tag.tagname,
+				Tag.id,
+				func.count(TagZettel.zettelid).label("zettel_count"))
+			.join(TagZettel)
+			.group_by(Tag.tagname)
+			.having(db.func.count(TagZettel.zettelid) > 0)
+			.all()
+		)
+		return render_template("tags.html", tags=tags)
 
 
-@app.route("/zettel", methods=['POST'])
-@require_login
-def zettel():
-	"""
-	zettel() gets the zettel with the id sent in the JSON request
-	returns a JSON string with text of zettel and markdown render of zettel with id
-	The route /zettel calls this function
-	"""
-	r = request.get_json()
-	s = db.query_db("SELECT body FROM zettels WHERE id=?", (r["id"],), one=True)
+	@app.route("/zettel", methods=['POST'])
+	@require_login
+	def zettel():
+		"""
+		zettel() gets the zettel with the id sent in the JSON request
+		returns a JSON string with text of zettel and markdown render of zettel with id
+		The route /zettel calls this function
+		"""
+		r = request.get_json()
+		zettel = Zettel.query.get(r["id"])
 
-	rs = {
-		"text": s["body"],
-		"markdown": markdown(strip_tags(s["body"]))
-	}
-	return json.dumps(rs)
+		if not zettel:
+			return jsonify({"error": "Zettel not found"}), 404
 
-
-@app.route("/savezettel", methods=['POST'])
-@require_login
-def save_zettel():
-	"""
-	save_zettel() saves the zettel to the database using the JSON data provided by the HTTP request
-	returns a JSON string containing the new title and new tags for saved zettel
-	The route /savezettel calls this function
-	"""
-	r = request.get_json()
-
-	db.execute_db("UPDATE zettels SET body=?, modified=CURRENT_TIMESTAMP WHERE id=?", [r["body"], r["id"]])
-
-	# delete existing tags in order to replace with the new ones
-	db.execute_db("DELETE FROM tags_zettels WHERE zettelid=?", [r["id"]])
-
-	# insert new tags
-	tags = get_tags(r["body"])
-	tags.sort()
-	for tag in tags:
-		tag_id = db.query_db("SELECT * FROM tags WHERE tagname=?", [tag], one=True)
-		if tag_id is None:
-			tag_id  = db.execute_db("INSERT INTO tags (tagname) VALUES (?) RETURNING id", [tag])
-		db.execute_db("INSERT INTO tags_zettels (tagid,zettelid) VALUES (?, ?)", [tag_id["id"], r["id"]])
-
-	rs = {
-		"title": get_first_line(r["body"]),
-		"date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-		"tags": " ".join(tag for tag in tags),
-		"text": r["body"],
-		"markdown": markdown(strip_tags(r["body"]))
-	}
-
-	return json.dumps(rs)
+		rs = {
+			"text": zettel.body,
+			"markdown": markdown(strip_tags(zettel.body))
+		}
+		return json.dumps(rs)
 
 
-@app.route("/deletezettel", methods=['POST'])
-@require_login
-def delete_zettel():
-	"""
-	delete_zettel deletes the zettel with the id in the JSON data provided by the HTTP request
-	The route /deletezettel calls this function
-	"""
-	r = request.get_json()
-	db.execute_db("DELETE FROM tags_zettels WHERE zettelid=?", [r["id"]])
-	db.execute_db("DELETE FROM zettels WHERE id=?", [r["id"]])
-	return {}
+	@app.route("/savezettel", methods=['POST'])
+	@require_login
+	def save_zettel():
+		"""
+		save_zettel() saves the zettel to the database using the JSON data provided by the HTTP request
+		returns a JSON string containing the new title and new tags for saved zettel
+		The route /savezettel calls this function
+		"""
+		r = request.get_json()
+
+		# Fetch the existing zettel
+		zettel = Zettel.query.get(r["id"])
+		if not zettel:
+			return {"error": "Zettel not found"}, 404
+
+		# Update the zettel's body and modified timestamp
+		zettel.body = r["body"]
+		zettel.modified = datetime.now()
+
+		# Remove existing tag associations
+		db.session.query(TagZettel).filter(TagZettel.zettelid == zettel.id).delete()
+
+		# Insert new tags
+		tags = get_tags(zettel.body)
+		tags.sort()
+		for tag_name in tags:
+			# Find or create the tag
+			tag = Tag.query.filter_by(tagname=tag_name).first()
+			if not tag:
+				tag = Tag(tagname=tag_name)
+				db.session.add(tag)
+				db.session.flush()  # Ensure tag ID is available before using it
+
+			# Create the association between tag and zettel
+			tag_zettel = TagZettel(tagid=tag.id, zettelid=zettel.id)
+			db.session.add(tag_zettel)
+
+		db.session.commit()
+
+		rs = {
+			"title": get_first_line(zettel.body),
+			"date": zettel.modified.strftime("%Y-%m-%d %H:%M:%S"),
+			"tags": " ".join(tags),
+			"text": zettel.body,
+			"markdown": markdown(strip_tags(zettel.body))
+		}
+
+		return json.dumps(rs)
 
 
-@app.route("/newzettel", methods=['POST'])
-@require_login
-def new_zettel():
-	"""
-	new_zettel inserts a blank record into the database and then returns the record entered as a JSON string
-	The route /newzettel calls this function
-	"""
-	z_id = db.execute_db("INSERT INTO zettels (body) VALUES ('') RETURNING id")
+	@app.route("/deletezettel", methods=['POST'])
+	@require_login
+	def delete_zettel():
+		"""
+		delete_zettel deletes the zettel with the id in the JSON data provided by the HTTP request
+		The route /deletezettel calls this function
+		"""
+		r = request.get_json()
+		# Delete associated tags
+		db.session.query(TagZettel).filter(TagZettel.zettelid == r["id"]).delete()
 
-	# Get default values from database
-	r = db.query_db("SELECT * FROM zettels WHERE id=?", [z_id["id"]], one=True)
-	rs = {
-		"id": r["id"],
-		"title": get_first_line(r["body"]),
-		"date": r["modified"],
-		"tags": "",
-		"text": r["body"],
-		"markdown": markdown(strip_tags(r["body"]))
-	}
-	return json.dumps(rs)
+		# Delete the zettel
+		zettel = Zettel.query.get(r["id"])
+		if zettel:
+			db.session.delete(zettel)
 
-@app.route("/login", methods=['GET', 'POST'])
-def login():
-	# Redirect to home if already logged in
-	if session.get("userid") == 1:
-		return redirect(url_for(""))
-	if request.method == "POST":
-		if request.form["password"] == app.config["PASSWORD"]:
-			session["userid"] = 1
-			return redirect(url_for("index"))
-	return render_template("login.html")
+		db.session.commit()
+		return {}
 
 
-@app.route("/logout")
-def logout():
-	session.pop("userid", None)
-	return redirect(url_for("login"))
+	@app.route("/newzettel", methods=['POST'])
+	@require_login
+	def new_zettel():
+		"""
+		new_zettel inserts a blank record into the database and then returns the record entered as a JSON string
+		The route /newzettel calls this function
+		"""
+
+		new_zettel = Zettel(body="", modified=datetime.now(), created=datetime.now())
+		db.session.add(new_zettel)
+		db.session.commit()
+
+		rs = {
+			"id": new_zettel.id,
+			"title": get_first_line(new_zettel.body),
+			"date": new_zettel.modified.strftime("%Y-%m-%d %H:%M:%S"),
+			"tags": "",
+			"text": new_zettel.body,
+			"markdown": markdown(strip_tags(new_zettel.body))
+		}
+
+		return json.dumps(rs)
+
+	@app.route("/login", methods=['GET', 'POST'])
+	def login():
+		# Redirect to home if already logged in
+		if session.get("userid") == 1:
+			return redirect(url_for(""))
+		if request.method == "POST":
+			if request.form["password"] == app.config["PASSWORD"]:
+				session["userid"] = 1
+				return redirect(url_for("index"))
+		return render_template("login.html")
+
+
+	@app.route("/logout")
+	def logout():
+		session.pop("userid", None)
+		return redirect(url_for("login"))
 
 
 def get_first_line(s, maxlength=40):

@@ -1,7 +1,8 @@
-import os
-basedir = os.path.abspath(os.path.dirname(__file__))
+from os import environ, path
+
+basedir = path.abspath(path.dirname(__file__))
 
 class Config:
-	SECRET_KEY = os.environ.get("SECRET_KEY") or "secret"
-	PASSWORD = os.environ.get("PASSWORD") or "password"
-	DATABASE = os.path.join(basedir, "z.db")
+    SECRET_KEY = environ.get("SECRET_KEY") or "secret"
+    PASSWORD = environ.get("PASSWORD") or "password"
+    SQLALCHEMY_DATABASE_URI = environ.get('DATABASE_URL') or 'sqlite:///' + path.join(basedir, 'z.db')
