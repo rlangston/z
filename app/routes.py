@@ -58,12 +58,19 @@ def index():
 	search = request.args.get("q", default = "", type = str)
 	tags_query = request.args.get("tags", default = "", type = str)
 	z_id = request.args.get("id", default = 0, type = int)
-	tags_list = None
+	tags_list = []
+	tags_required_list = []
 
 	if tags_query == "<none>":
 		no_tag = True
 	else:
-		tags_list = tags_query.split()
+		for tag in tags_query.split():
+			print(tag)
+			if tag.startswith("+"):
+				# tags_list.append(tag[1:])
+				tags_required_list.append(tag[1:])
+			else:
+				tags_list.append(tag)
 		no_tag = False
 
 	search_param = f"%{search}%"
@@ -99,12 +106,14 @@ def index():
 	items = []
 	for item in i:
 		tags = db.query_db("SELECT t.tagname FROM tags t JOIN tags_zettels tz ON t.id = tz.tagid JOIN zettels z ON z.id = tz.zettelid WHERE z.id = ? ORDER BY t.tagname ASC", [item["id"]])
-		items.append({
-			"id": item["id"],
-			"title": get_first_line(item["body"]),
-			"date": item["modified"],
-			"tags": " ".join(tag[0] for tag in tags)
-   		})
+		item_tags = [tag[0] for tag in tags]
+		if all(item_tag in item_tags for item_tag in tags_required_list):
+			items.append({
+				"id": item["id"],
+				"title": get_first_line(item["body"]),
+				"date": item["modified"],
+				"tags": " ".join(item_tags)
+			})
 	return render_template("index.html", items=items, search=search, tags=tags_query, selectedid=z_id)
 
 
@@ -124,7 +133,6 @@ def tags():
 		HAVING COUNT(tz.zettelid) > 0;
 	"""
 	t = db.query_db(query)
-	# print(t[0]["id"], t[0]["tagname"], t[0]["zettel_count"])
 	return render_template("tags.html", tags=t)
 
 
@@ -138,8 +146,6 @@ def zettel():
 	"""
 	r = request.get_json()
 	s = db.query_db("SELECT body FROM zettels WHERE id=?", (r["id"],), one=True)
-
-	print(markdown(strip_tags(s["body"])))
 
 	rs = {
 		"text": s["body"],

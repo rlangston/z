@@ -274,7 +274,7 @@ function resizeTextArea() {
 function reload_page() {
     const tags = $('#tags').val()
     const query = $('#search').val(); // Get the value from the input
-    const url = "/index?q=" + query + "&tags=" + tags; // Construct the URL
+    const url = "/index?q=" + encodeURIComponent(query) + "&tags=" + encodeURIComponent(tags); // Construct the URL
 
     // Redirect to the new page
     window.location.href = url;
