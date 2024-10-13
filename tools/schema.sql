@@ -4,7 +4,8 @@ DROP TABLE IF EXISTS tags_zettels;
 
 CREATE TABLE tags (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  tagname TEXT NOT NULL
+  tagname TEXT NOT NULL,
+  colour TEXT NOT NULL DEFAULT "#FFFFFF"
 );
 
 CREATE TABLE zettels (
