@@ -240,6 +240,38 @@ def register_routes(app):
 
 		return json.dumps(rs)
 
+
+	@app.route("/newmailzettel", methods=['POST'])
+	def new_mail_zettel():
+		"""
+		new_mail_zettel inserts a record into the database based on the JSON request received
+		it anticipates that the JSON will include two fields ["envelope"]["to"] and ["plain"] as it will have been forwarded from an email
+		the "to" field is checked against the password and a new item is only added if it validates
+		the zettel text is then set to be the "plain" field
+
+		The route /newzettel calls this function
+		"""
+
+		r = request.get_json()
+		if r["envelope"]["to"] != app.config["PASSWORD"]:
+		   return "Address not valid", 422
+
+		new_zettel = Zettel(body=r["plain"], modified=datetime.now(), created=datetime.now())
+		db.session.add(new_zettel)
+		db.session.commit()
+
+		rs = {
+			"id": new_zettel.id,
+			"title": get_first_line(new_zettel.body),
+			"date": new_zettel.modified.strftime("%Y-%m-%d %H:%M:%S"),
+			"tags": "",
+			"text": new_zettel.body,
+			"markdown": markdown(strip_tags(new_zettel.body))
+		}
+
+		return json.dumps(rs), 200
+
+
 	@app.route("/login", methods=['GET', 'POST'])
 	def login():
 		# Redirect to home if already logged in
