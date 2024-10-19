@@ -261,7 +261,7 @@ def register_routes(app):
 		if to.split("@")[0] != app.config["PASSWORD"]:
 			return "Address not valid", 422
 
-		new_zettel = Zettel(body=trim_blank_lines(["plain"]), modified=datetime.now(), created=datetime.now())
+		new_zettel = Zettel(body=trim_blank_lines(r["plain"]), modified=datetime.now(), created=datetime.now())
 		db.session.add(new_zettel)
 		db.session.flush() # Ensure new zettel id is available before using it
 
