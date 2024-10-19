@@ -253,11 +253,33 @@ def register_routes(app):
 		"""
 
 		r = request.get_json()
-		if r["envelope"]["to"].split("@")[0] != app.config["PASSWORD"]:
-		   return "Address not valid", 422
+		index = r["headers"]["to"].find("<")
+		if index != -1:
+			to = r["headers"]["to"][index + 1]
+		else:
+			to = r["headers"]["to"]
+		if to.split("@")[0] != app.config["PASSWORD"]:
+			return "Address not valid", 422
 
 		new_zettel = Zettel(body=r["plain"], modified=datetime.now(), created=datetime.now())
 		db.session.add(new_zettel)
+		db.session.flush() # Ensure new zettel id is available before using it
+
+		# Insert new tags
+		tags = get_tags(new_zettel.body)
+		tags.sort()
+		for tag_name in tags:
+			# Find or create the tag
+			tag = Tag.query.filter_by(tagname=tag_name).first()
+			if not tag:
+				tag = Tag(tagname=tag_name)
+				db.session.add(tag)
+				db.session.flush()  # Ensure tag ID is available before using it
+
+			# Create the association between tag and zettel
+			tag_zettel = TagZettel(tagid=tag.id, zettelid=new_zettel.id)
+			db.session.add(tag_zettel)
+
 		db.session.commit()
 
 		rs = {
