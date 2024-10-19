@@ -261,7 +261,7 @@ def register_routes(app):
 		if to.split("@")[0] != app.config["PASSWORD"]:
 			return "Address not valid", 422
 
-		new_zettel = Zettel(body=r["plain"], modified=datetime.now(), created=datetime.now())
+		new_zettel = Zettel(body=trim_blank_lines(["plain"]), modified=datetime.now(), created=datetime.now())
 		db.session.add(new_zettel)
 		db.session.flush() # Ensure new zettel id is available before using it
 
@@ -371,3 +371,12 @@ def strip_tags(s):
 	# Return text containing the lines
 	return "\n".join(lines)
 
+
+def trim_blank_lines(s):
+	"""
+	trim_blank_lines(string s) removes any blank lines at the end of text
+	"""
+    lines = s.splitlines()  # Split the text into lines
+    while lines and not lines[-1].strip():  # Remove blank or whitespace-only lines from the end
+        lines.pop()
+    return "\n".join(lines)  # Join the remaining lines back into a single string
