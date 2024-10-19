@@ -255,7 +255,7 @@ def register_routes(app):
 		r = request.get_json()
 		index = r["headers"]["to"].find("<")
 		if index != -1:
-			to = r["headers"]["to"][index + 1]
+			to = r["headers"]["to"][index + 1:]
 		else:
 			to = r["headers"]["to"]
 		if to.split("@")[0] != app.config["PASSWORD"]:
