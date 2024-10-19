@@ -249,11 +249,11 @@ def register_routes(app):
 		the "to" field is checked against the password and a new item is only added if it validates
 		the zettel text is then set to be the "plain" field
 
-		The route /newzettel calls this function
+		The route /newmailzettel calls this function
 		"""
 
 		r = request.get_json()
-		if r["envelope"]["to"] != app.config["PASSWORD"]:
+		if r["envelope"]["to"].split("@")[0] != app.config["PASSWORD"]:
 		   return "Address not valid", 422
 
 		new_zettel = Zettel(body=r["plain"], modified=datetime.now(), created=datetime.now())
