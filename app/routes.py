@@ -376,7 +376,7 @@ def trim_blank_lines(s):
 	"""
 	trim_blank_lines(string s) removes any blank lines at the end of text
 	"""
-    lines = s.splitlines()  # Split the text into lines
-    while lines and not lines[-1].strip():  # Remove blank or whitespace-only lines from the end
-        lines.pop()
-    return "\n".join(lines)  # Join the remaining lines back into a single string
+	lines = s.splitlines()  # Split the text into lines
+	while lines and not lines[-1].strip():  # Remove blank or whitespace-only lines from the end
+		lines.pop()
+	return "\n".join(lines)  # Join the remaining lines back into a single string
