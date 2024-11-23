@@ -42,7 +42,7 @@
 
     <div class="container-fluid">
     <div class="row">
-        <div class="col-sm-4">
+        <div class="col-sm-4 overflow-auto">
             <input type="hidden" id="selectedid" value="{{ selectedid }}">
             <ul class="item-list" id="item-list">
 				{% for item in items %}
@@ -56,7 +56,7 @@
 				{% endfor %}
             </ul>
         </div>
-        <div class="col-sm-8">
+        <div class="col-sm-8 overflow-auto">
             <div class="viewtext" id="viewtext">
             </div>
             <div class="edittext" id="edittext">
