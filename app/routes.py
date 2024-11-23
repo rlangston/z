@@ -318,9 +318,9 @@ def get_first_line(s, maxlength=40):
 	"""
 	newline_index = s.find('\n')
 	if 0 <= newline_index < maxlength:
-		title = s[:newline_index].lstrip("#")
+		title = s[:newline_index].lstrip("#>")
 	else:
-		title = s[:maxlength].lstrip("#")
+		title = s[:maxlength].lstrip("#>")
 	return title.translate( { ord(i): None for i in "[]"} )
 
 
