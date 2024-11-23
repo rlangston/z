@@ -19,7 +19,7 @@ python3 initdb.py
 
 ```
 
-The Dockerfile is as follows.  Set the environment variables for SECRET_KEY (the session secret key) and PASSWORD (the login password for the site)
+The Dockerfile is as follows.  Set the environment variables for SECRET_KEY (the session secret key), PASSWORD (the login password for the site) and DATABASE (the url for the database which is mapped from the local drive to this location by Docker Compose).
 
 ```
 
@@ -29,13 +29,14 @@ ADD z z
 WORKDIR z
 ENV SECRET_KEY="your_secret_key"
 ENV PASSWORD="your_password"
+ENV DATABASE_RL="sqlite////db/z.db"
 RUN pip3 install -r requirements.txt
 
 CMD [ "python", "-m" , "flask", "run", "--host=0.0.0.0"]
 
 ```
 
-And the Docker Compose entry (which uses the above Dockerfile) is
+And the Docker Compose entry (which uses the above Dockerfile) is (change hte ./zdb to the location of the folder containing the database on the local drive - this will persist a rebuild of the docker file).
 
 ```
 
@@ -47,6 +48,8 @@ z:
   restart: unless-stopped
   ports:
     - 8004:5000
+  volumes:
+    - ./zdb:/zb
 
 ```
 
