@@ -339,6 +339,10 @@ def get_tags(s):
 	# Get the final line
 	last_line = lines[-1]
 
+	# Return empty list if the last line doesn't start with a #
+	if last_line[0] != "#":
+		return []
+
 	# Find words that start with #
 	result = [word[1:] for word in last_line.split() if word.startswith('#')]
 
