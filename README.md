@@ -58,6 +58,11 @@ z:
 ### Tags and search
 The /index page can loaded with url params q and tags to search for text and tags respectively.  For example /index?q=hello&tags=world would list all items which include the text hello and the tag world.
 
-Click on the hamburger to get a list of the tags, and their count.  These are then populated into the tags box and the page reloaded.  Alternatively type in the box and then press return to reload the page.  Clearing the box and pressing return reloads the page and clears the tag search.
+Click on the three dots to get a list of the tags, and their count.  These are then populated into the tags box and the page reloaded.  Alternatively type in the box and then press return to reload the page.  Clearing the box and pressing return reloads the page and clears the tag search.
 
 To find items with no tag, either select the "No tag" option in the list of tags, or type <none> in the tags box.s
+
+### Mail
+Zettels can be added by emailing to an email address which then calls the /new_mail_zettel route. This function anticipates that the JSON will include two fields ["envelope"]["to"] and ["plain"] as it will have been forwarded from an email.
+
+The "to" field is checked against the site password and a new item is only added if it validates.  The Zettel text is then set to be the "plain" field.
