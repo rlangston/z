@@ -181,6 +181,13 @@ $(document).ready(function() {
             return;
         }
 
+		if (confirm("Confirm delete?")) {
+        	deleteItem(itemId);
+        }
+    });
+
+	function deleteItem(itemId) {
+
         // Send an AJAX request to fetch data based on the item id
         $.ajax({
             url: '/deletezettel',
@@ -206,7 +213,7 @@ $(document).ready(function() {
                 end_editing();
             }
         });
-    });
+	}
 
     // jQuery click event handler for new button - need to use class as id used for item number
     $('#new-btn').on('click', function() {
