@@ -344,7 +344,7 @@ def get_tags(s):
 		return []
 
 	# Find words that start with #
-	result = [word[1:] for word in last_line.split() if word.startswith('#')]
+	result = [tag.strip() for tag in last_line.split("#")[1:]]
 
 	return result
 
