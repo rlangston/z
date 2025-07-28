@@ -55,8 +55,8 @@ $(document).ready(function() {
                 // Update the modal's html with the response text
                 $("#modal-text").html(text);
 
-                // Get the values from the input box, split by spaces, and store in an array
-                var tagValues = $('#tags').val().split(' ');
+                // Get the values from the input box, split by commas, and store in an array
+                var tagValues = $('#tags').val().split(',');
 
                 // Uncheck all checkboxes first to reset
                 $('input[name="selectedtags"]').prop('checked', false);
@@ -290,7 +290,7 @@ function reload_page() {
 function close_modal() {
     let selectedTags = $('input[name="selectedtags"]:checked').map(function() {
         return this.value;
-    }).get().join(' ');
+    }).get().join(',');
     $('#tags').val(selectedTags);
     $('#modal').hide();
     reload_page();
